@@ -83,7 +83,7 @@ def check_matches(known, match):
 
             choice_index = get_choice(len(possible_matches))
             choice = possible_matches[choice_index]
-            out_vals[item.lower()] = (index, item, choice)
+            out_vals[item.lower()] = (index, item, choice[0])
         else:
             if first_match_value != 100:
                 print(f'{fg("yellow")}Automatically matched{attr("reset")}')
@@ -128,6 +128,12 @@ def parse():
                         type=str,
                         required=True)
 
+    parser.add_argument('-u',
+                        '--unique',
+                        dest='unique_values',
+                        help='Only include unique values on output',
+                        action='store_true')
+
     return parser.parse_args()
 
 
@@ -144,8 +150,14 @@ def main():
         w.writerow([args.invalid_column_name,
                     f'{args.invalid_column_name}_corrected',
                     'index'])
-        for k, v in matches.items():
-            w.writerow([v[1], v[2], v[0]])
+
+        if args.unique_values:
+            for k, v in matches.items():
+                w.writerow([v[1], v[2], v[0]])
+        else:
+            for word in match:
+                v = matches[word.lower()]
+                w.writerow([v[1], v[2], v[0]])
 
 
 if __name__ == "__main__":
